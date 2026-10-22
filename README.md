@@ -54,6 +54,26 @@ npm run start
 
 No secrets are needed for the public sample experience. The admin requires secure configuration. Do not use the local JSON store for commercial production hosting. Custom-domain configuration, payment processing, image storage, customer consent, and your business’s legal terms are separate deployment decisions.
 
+## GitHub Pages demo
+
+Live demo: https://aayushmankoirala5-cell.github.io/birthsite-B-1/
+
+GitHub Pages serves static files and cannot run this app's API, admin login, or customer database. Publishing the unbuilt repository with Jekyll displays this README instead of the birthday website.
+
+The **BirthSite checks** workflow now builds and tests both the full application and a separate static demo, then publishes `out/` using GitHub Pages. It deploys from `main`, so an existing Pages setup using that source branch also works. For future setup, choose **Settings → Pages → Build and deployment → Source → GitHub Actions**. Every successful push to `main` updates the demo; it can also be redeployed with **Actions → BirthSite checks → Run workflow**.
+
+The static build reuses the birthday design and animations, includes the public Olivia sample and the **2006** demo gate, and prefixes all assets with the repository path. Only allowlisted public files enter the build. Customer records, server modules, admin routes, and environment files are excluded. The static gate is a public visual surprise, not private authentication. Deploy to Vercel for customer management and server-verified passwords.
+
+To reproduce the Pages deployment locally:
+
+```sh
+npm run build:pages
+npm run test:pages
+node scripts/serve-pages.mjs
+```
+
+Open http://127.0.0.1:3103/birthsite-B-1/. To build for a different project URL, set `PAGES_BASE_PATH=/your-repository` for the build, tests, and preview. Set it to an empty string for a domain-root deployment. On GitHub Actions the build defaults to the current repository name. The generated `.pages-build/` and `out/` folders are ignored by Git.
+
 ## Open a GitHub pull request
 
 Review the final diff before publishing:

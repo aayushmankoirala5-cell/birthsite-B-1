@@ -27,6 +27,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CustomerPublic, CustomerTeaser } from "@/lib/types";
+import { assetPath } from "@/lib/asset-path";
 
 type Stage =
   "welcome" | "countdown" | "reveal" | "cloud" | "unlock" | "celebration";
@@ -143,8 +144,11 @@ function useBirthdayMusic() {
 
 export default function BirthdayExperience({
   teaser,
+  demoContent,
 }: {
   teaser: CustomerTeaser;
+  /** Only the public sample is included in the static GitHub Pages build. */
+  demoContent?: CustomerPublic;
 }) {
   const [stage, setStage] = useState<Stage>("welcome");
   const [count, setCount] = useState(3);
@@ -241,20 +245,29 @@ export default function BirthdayExperience({
     setError("");
     setLoading(true);
     try {
-      const response = await fetch(
-        `/api/celebration/${encodeURIComponent(teaser.slug)}/unlock`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ birthYear: year }),
-        },
-      );
-      const data = await response.json();
-      if (!response.ok)
-        throw new Error(
-          data.error || "Something went wrong. Please try again.",
+      let unlocked: CustomerPublic;
+      if (demoContent && teaser.slug === "demo" && demoContent.id === "demo") {
+        // This is a public demo surprise, not authentication for customer data.
+        if (year !== "2006")
+          throw new Error("Not quite. Try the year you were born.");
+        unlocked = demoContent;
+      } else {
+        const response = await fetch(
+          `/api/celebration/${encodeURIComponent(teaser.slug)}/unlock`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ birthYear: year }),
+          },
         );
-      setCelebration(data.celebration);
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(
+            data.error || "Something went wrong. Please try again.",
+          );
+        unlocked = data.celebration;
+      }
+      setCelebration(unlocked);
       try {
         const saved = localStorage.getItem(`birthsite-note-${teaser.slug}`);
         if (saved) {
@@ -410,7 +423,7 @@ export default function BirthdayExperience({
                   <div className="photo-frame hero-photo">
                     <div className="tape tape-top" />
                     <Image
-                      src="/images/birthday-editorial.png"
+                      src={assetPath("/images/birthday-editorial.png")}
                       alt="A blush birthday cake with candles, flowers, and champagne balloons"
                       width={600}
                       height={650}
@@ -473,7 +486,7 @@ export default function BirthdayExperience({
                     <div className="mini-polaroids">
                       <div className="mini-photo mini-one">
                         <Image
-                          src="/images/memory-1.jpg"
+                          src={assetPath("/images/memory-1.jpg")}
                           alt=""
                           width={110}
                           height={120}
@@ -482,7 +495,7 @@ export default function BirthdayExperience({
                       </div>
                       <div className="mini-photo mini-two">
                         <Image
-                          src="/images/memory-2.jpg"
+                          src={assetPath("/images/memory-2.jpg")}
                           alt=""
                           width={110}
                           height={120}
@@ -702,7 +715,7 @@ export default function BirthdayExperience({
                     >
                       <div className="memory-image">
                         <Image
-                          src={photo.url}
+                          src={assetPath(photo.url)}
                           alt={photo.caption || `Birthday memory ${index + 1}`}
                           width={600}
                           height={700}
@@ -1126,7 +1139,7 @@ export default function BirthdayExperience({
               </button>
               <figure onClick={(event) => event.stopPropagation()}>
                 <Image
-                  src={photos[lightbox].url}
+                  src={assetPath(photos[lightbox].url)}
                   alt={photos[lightbox].caption}
                   width={1200}
                   height={1000}

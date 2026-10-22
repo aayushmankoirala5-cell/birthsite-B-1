@@ -8,9 +8,11 @@
   "scripts": {
     "dev": "next dev --webpack --hostname 0.0.0.0",
     "build": "next build",
+    "build:pages": "node scripts/build-pages.mjs",
     "start": "next start --hostname 0.0.0.0",
     "check": "next typegen && tsc --noEmit && eslint .",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:pages": "playwright test --config playwright.pages.config.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("complete cinematic birthday experience", async ({ page }) => {
   const browserErrors: string[] = [];
   page.on("pageerror", (error) => browserErrors.push(error.message));
-  await page.goto("/");
+  await page.goto(process.env.BIRTHSITE_TEST_HOME || "/");
   await expect(
     page.getByRole("heading", {
       name: /Some days are made for a little magic/,
@@ -37,7 +37,9 @@ test("complete cinematic birthday experience", async ({ page }) => {
   await expect(page.getByLabel("Your birth year")).toBeVisible();
   await page.getByLabel("Your birth year").fill("2005");
   await page.getByRole("button", { name: "Let the magic in" }).click();
-  await expect(page.getByRole("alert")).toBeVisible();
+  await expect(page.locator("#unlock-error")).toHaveText(
+    "Not quite. Try the year you were born.",
+  );
   await page.getByLabel("Your birth year").fill("2006");
   await page.getByRole("button", { name: "Let the magic in" }).click();
   await expect(
@@ -84,7 +86,7 @@ test("complete cinematic birthday experience", async ({ page }) => {
 test("mobile layout and reduced-motion birthday gate", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto(process.env.BIRTHSITE_TEST_HOME || "/");
   await expect(
     page.getByRole("button", { name: "Open your surprise" }),
   ).toBeInViewport();
